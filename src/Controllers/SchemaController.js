@@ -137,7 +137,7 @@ function verifyPermissionKey(key) {
   }
 }
 
-const CLPValidKeys = Object.freeze(['find', 'get', 'create', 'update', 'delete', 'addField', 'readUserFields', 'writeUserFields']);
+const CLPValidKeys = Object.freeze(['find', 'count', 'get', 'create', 'update', 'delete', 'addField', 'readUserFields', 'writeUserFields']);
 function validateCLP(perms, fields) {
   if (!perms) {
     return;
@@ -813,16 +813,14 @@ export default class SchemaController {
         throw new Parse.Error(Parse.Error.OBJECT_NOT_FOUND,
         'Permission denied, user needs to be authenticated.');
       }
-      // no other CLP than requiresAuthentication
-      // let's resolve that!
-      if (Object.keys(perms).length == 1) {
-        return Promise.resolve();
-      }
+      // requiresAuthentication passed, just move forward
+      // probably would be wise at some point to rename to 'authenticatedUser'
+      return Promise.resolve();
     }
 
     // No matching CLP, let's check the Pointer permissions
     // And handle those later
-    const permissionField = ['get', 'find'].indexOf(operation) > -1 ? 'readUserFields' : 'writeUserFields';
+    const permissionField = ['get', 'find', 'count'].indexOf(operation) > -1 ? 'readUserFields' : 'writeUserFields';
 
     // Reject create when write lockdown
     if (permissionField == 'writeUserFields' && operation == 'create') {
